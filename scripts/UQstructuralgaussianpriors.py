@@ -37,15 +37,15 @@ def copy_func(f):
 # Parameters
 #=========================================================================
 # Data 
-realdata = True
+realdata = False
 phantomname = 'DeepSeaOilPipe4'   # choose phantom
 rnl = 0.02                     # relative noise level
-ag = "sparseangles20percent"                    # Problem geometry
+ag = "full"                    # Problem geometry
 if realdata == True:
     data_std = 0.05
-    datapath = '../data/Data_20180911/'
+    datapath = '../../FORCE/data/Data_20180911/'
 else: 
-    datapath = '../data/SyntheticData/{}_rnl{:d}_geom{}/'.format(phantomname, int(rnl*100), ag)
+    datapath = '../../FORCE/data/SyntheticData/{}_rnl{:d}_geom{}/'.format(phantomname, int(rnl*100), ag)
 
 # UQ problem
 likelihood = 'IIDGauss'              # type of likelihood 'IIDGauss', 'Nolike'
@@ -138,7 +138,7 @@ q = len(theta)
 
 # Reconstruction geometry
 domain      = 55         # physical size of image domain
-N           = 512        # reconstruction of NxN pixels
+N           = 500        # reconstruction of NxN pixels
 
 #%%=======================================================================
 # Create/load sinogram
