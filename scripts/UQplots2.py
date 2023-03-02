@@ -33,6 +33,7 @@ def iact(chainno,tau, filename, path):
     plt.tight_layout()
     plt.show()
     plt.savefig(path + filename + '.png')
+    plt.savefig(path + filename + '.eps', format='eps')
 
 #%% =================================================================
 # Plot autocorrelation functions
@@ -98,6 +99,7 @@ def image2D(imagevec, N, domain, title, path, filename, cmin=None, cmax=None):
 
     plt.show()
     plt.savefig(path + filename + '.png')
+    plt.savefig(path + filename + '.eps', format='eps')
 
 # =================================================================
 # Movie
@@ -144,6 +146,7 @@ def logimage2D(imagevec, N, domain, title, path, filename, cmin=None, cmax=None)
 
     plt.show()
     plt.savefig(path + filename + '.png')
+    plt.savefig(path + filename + '.eps', format='eps')
 
 # =================================================================
 # Plot the sinogram
@@ -161,6 +164,7 @@ def sino(b_data, p, q, path, filename, title, cmin = None, cmax = None):
     fig.subplots_adjust(wspace=.5)
     plt.show()
     plt.savefig(path + filename + '.png')
+    plt.savefig(path + filename + '.eps', format='eps')
 
 # =================================================================
 # Plot the sinogram
@@ -181,6 +185,7 @@ def sino2(b_data, p, q, path, filename, cmin = None, cmax = None):
     plt.tight_layout()
     plt.show()
     plt.savefig(path + filename + '.png')
+    plt.savefig(path + filename + '.eps', format='eps')
 
 # =================================================================
 # Prior mask
@@ -200,6 +205,7 @@ def priormask(mask, N, radii, cmin, cmax, path):
     plt.setp(ax1.get_yticklabels(), visible=False)
     plt.show()
     plt.savefig(path + 'priormask.png')
+    plt.savefig(path + 'priormask.eps', format='eps')
 
 
 # =================================================================
@@ -273,6 +279,7 @@ def slices1D(x_mean, xql, xqu, x_true, N, domain, slice_vertical, slice_horizont
 
     plt.show()
     plt.savefig(path +'recon_1Dslice.png')
+    plt.savefig(path + 'recon_1Dslice' + '.eps', format='eps')
 
 def slices1Dvs2(x_mean, xql, xqu, x_true, N, domain, slice_vertical, slice_horizontal, realdata, path, cmin=None, cmax=None, chainno = None):
     
@@ -379,6 +386,8 @@ def slices1Dvs2(x_mean, xql, xqu, x_true, N, domain, slice_vertical, slice_horiz
 
     plt.show()
     plt.savefig(path +'recon_1Dslice_vs2.png')
+    plt.savefig(path + 'recon_1Dslice_vs2.eps', format='eps')
+
 
 # =================================================================
 # Plot 1D slices of reconstruction
@@ -430,6 +439,8 @@ def slices1D_postreals(post_realiz, post_idx, x_mean, x_true, N, domain, slice_v
 
     plt.show()
     plt.savefig(path +'post_reals_1Dslice.png')
+    plt.savefig(path + 'post_reals_1Dslice.eps', format='eps')
+
 
 # =================================================================
 # Plot error
@@ -447,6 +458,8 @@ def error_chain(x_e, x_e_thin, path):
     plt.tight_layout()
     plt.show()
     plt.savefig(path + 'error.png')
+    plt.savefig(path + 'error.eps', format='eps')
+
 
 # =================================================================
 # Plot hyper parameter chains
@@ -464,6 +477,8 @@ def xprec_chain(x_prec, x_prec_thin, path):
     plt.tight_layout()
     plt.show()
     plt.savefig(path +'xprecchain.png')
+    plt.savefig(path + 'xprecchain.eps', format='eps')
+
 
 # =================================================================
 # Plot x chains
@@ -487,6 +502,8 @@ def xchains(x_chains, x_chains_thin, chainno, tau_max, filename, path, hist = 1)
     plt.tight_layout()
     plt.show()
     plt.savefig(path + filename + '.png')
+    plt.savefig(path + filename + '.eps', format='eps')
+
 
     if hist == 1:
         fig, axs = plt.subplots(nrows=int(np.ceil(nochains/2)), ncols=2, figsize=(10,int(1*nochains+1)))
@@ -497,6 +514,8 @@ def xchains(x_chains, x_chains_thin, chainno, tau_max, filename, path, hist = 1)
         plt.tight_layout()
         plt.show()
         plt.savefig(path + filename + 'hist.png')
+        plt.savefig(path + filename + 'hist.eps', format='eps')
+
 
 
 # =================================================================
@@ -513,48 +532,12 @@ def chainhist(chains, chains_thin, filename, path):
     plt.tight_layout()
     plt.show()
     plt.savefig(path + filename + '.png')
+    plt.savefig(path + filename + '.eps', format='eps')
 
     fig, ax = plt.subplots(nrows=1, ncols=1, figsize=(5,2))
     ax.hist(chains_thin, bins = 30, color = cmap(0))
     plt.tight_layout()
     plt.show()
     plt.savefig(path + filename + 'hist.png')
+    plt.savefig(path + filename + 'hist.eps', format='eps')
 
-# =================================================================
-# Mark chain pixels in image
-# =================================================================
-def markchainpixels(x_mean, x_std, chainno, N, realdata, cmin, cmax, path):
-
-    fig = plt.figure(figsize=(5,4))
-    ax2 = plt.subplot(111)
-    cs = ax2.imshow(x_mean.reshape(N,N), extent=[0, 1, 0, 1], aspect='equal', cmap=colmap, vmin = cmin, vmax = cmax)
-    cax = fig.add_axes([ax2.get_position().x1+0.01,ax2.get_position().y0,0.05,ax2.get_position().height])
-    cbar = plt.colorbar(cs, cax=cax) 
-    for i in range(len(chainno)):
-        ax2.plot(pixel_x[i], pixel_y[i], 'o')
-    ax2.set_title('Mean of posterior')
-    ax2.tick_params(axis='both', which='both', length=0)
-    plt.setp(ax2.get_xticklabels(), visible=False)
-    plt.setp(ax2.get_yticklabels(), visible=False)
-    if realdata == True:
-        ax2.set_xlim(0.25, 0.75)  
-        ax2.set_ylim(0.25, 0.75) 
-    plt.show()
-    plt.savefig(path + 'posterior_mean_marked_pixels.png')
-
-    fig = plt.figure(figsize=(5,4))
-    ax3 = plt.subplot(111)
-    cs = ax3.imshow(x_std.reshape(N,N), extent=[0, 1, 0, 1], aspect='equal', cmap=colmap)
-    cax = fig.add_axes([ax3.get_position().x1+0.01,ax3.get_position().y0,0.05,ax3.get_position().height])
-    cbar = plt.colorbar(cs, cax=cax) 
-    for i in range(len(chainno)):
-        ax3.plot(pixel_x[i], pixel_y[i], 'o')
-    ax3.set_title('Std of posterior')
-    ax3.tick_params(axis='both', which='both', length=0)
-    plt.setp(ax3.get_xticklabels(), visible=False)
-    plt.setp(ax3.get_yticklabels(), visible=False)
-    if realdata == True:
-        ax3.set_xlim(0.25, 0.75)  
-        ax3.set_ylim(0.25, 0.75) 
-    plt.show()
-    plt.savefig(path + 'posterior_std_marked_pixels.png')
