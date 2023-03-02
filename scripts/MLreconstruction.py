@@ -35,10 +35,10 @@ def copy_func(f):
 # Parameters
 #=========================================================================
 # Data 
-realdata = True
+realdata = False
 phantomname = 'DeepSeaOilPipe4'   # choose phantom
 rnl = 0.02                      # relative noise level
-ag = "sparseangles20percent"                    # Problem geometry
+ag = "full"                    # Problem geometry
 if realdata == True:
     data_std = 0.05
     datapath = '../data/Data_20180911/sinoN8.dat'
@@ -64,7 +64,7 @@ q = len(theta)
 
 # Reconstruction geometry
 domain      = 55          # physical size of object
-N           = 512         # reconstruction of NxN pixels
+N           = 500         # reconstruction of NxN pixels
 
 #%%=======================================================================
 # Create/load sinogram
@@ -168,6 +168,7 @@ if realdata == False:
     plt.tight_layout()
     plt.show()
     plt.savefig(path + 'RMSEim.png')
+    plt.savefig(path + 'RMSEim.eps', format = 'eps')
 
 
 mdict={'x_ML': x_ML,
