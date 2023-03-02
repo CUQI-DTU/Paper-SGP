@@ -13,12 +13,12 @@ import geometrylib
 # geometry parameters
 #=========================================================================
 # Aqusition geometry
-p, theta, stc, ctd, shift, vectors, dl, dlA = geometrylib.Data20180911("sparseangles20percent")
+p, theta, stc, ctd, shift, vectors, dl, dlA = geometrylib.Data20180911("full")
 
 q = np.shape(vectors)[0]
 # Reconstruction geometry
 domain      = 55              # physical size of object
-N = 512
+N = 500
 
 #%%=======================================================================
 # setup ASTRA
