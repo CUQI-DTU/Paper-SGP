@@ -40,7 +40,7 @@ def copy_func(f):
 realdata = False
 phantomname = 'DeepSeaOilPipe4'   # choose phantom
 rnl = 0.02                     # relative noise level
-ag = "full"                    # Problem geometry
+ag = "sparseangles20percent"                    # Problem geometry
 if realdata == True:
     data_std = 0.05
     datapath = '../../FORCE/data/Data_20180911/'
@@ -58,19 +58,21 @@ PUrubber = 5.1e-2*0.94
 PEfoam = 5.1e-2*0.15
 concrete = 4.56e-2*2.3
 
-# Prior means and precisions
+# Prior means
 mu_vals = np.array([steel, PEfoam, PUrubber, concrete, air])
-prec_vals = np.array([1000, 1000, 1000, 500, 1000])
-#prec_vals = np.array([0, 0, 0, 0, 1000])
-#prec_vals = np.array([0, 0, 0, 0, 0])
-prec_MRF = 1000
+# Prior precision values for IID part of prior. Comment lines to choose SGP configuration.
+prec_vals = np.array([1000, 1000, 1000, 500, 1000]) # SGP-F
+#prec_vals = np.array([0, 0, 0, 0, 1000]) # SGP-BG
+#prec_vals = np.array([0, 0, 0, 0, 0]) # GMRF
+# Prior GMRF precision
+prec_MRF = 2000
 
 # Samplers
 n_s = int(2e3)              # number of saved samples
 n_b = int(0.2*n_s)          # burn-in
 n_t = n_s+n_b               # total number of saved samples
 n_u = 1                     # number of samples between saving
-x_tol, n_cgls, ncgls_init = 1e-4, 10, 8    # for CGLS sampling
+x_tol, n_cgls, ncgls_init = 1e-4, 10, 7    # for CGLS sampling
 msgno = 1                   # No. of saved samples between printing progress
 
 if realdata == False:
@@ -123,7 +125,7 @@ else:
                             [1,24.1]])
 
 # Filepaths
-path1 = '../output/' + ag + '/' 
+path1 = '../../../../../../work3/swech/' + ag + '/' 
 path2 = 'rnl{:d}_precpipe{:d}_precout{:d}_precMRF{:d}/'.format(int(rnl*100), int(prec_vals[3]), int(prec_vals[4]), int(prec_MRF))
 path = path1 + path2
 file = 'UQout'
@@ -196,11 +198,11 @@ Rmu_prior = np.hstack([np.zeros(np.shape(D1)[0]), np.zeros(np.shape(D2)[0]), Wsq
 # init sampling
 if likelihood == "Nolike":
     x0 = np.zeros(N**2)
-elif realdata==True:
-    x0, _ = CGLS_reg_ML(np.zeros(N**2), b_data, lambd, ncgls_init, x_tol)
-else:
-    MLrecon = spio.loadmat(datapath+'ML.mat')
-    x0 = MLrecon['x_ML'][:, ncgls_init-1]
+#elif realdata==True:
+x0, _ = CGLS_reg_ML(np.zeros(N**2), b_data, lambd, ncgls_init, x_tol)
+# else:
+#     MLrecon = spio.loadmat(datapath+'ML.mat')
+#     x0 = MLrecon['x_ML'][:, ncgls_init-1]
 
 np.random.seed(1000)
 print('\n***MCMC***\n')
@@ -403,7 +405,7 @@ for i in range(6):
 
 if realdata == True:
     x_truef = None
-UQplots.slices1D(x_mean, x_q[:,0], x_q[:,4], x_truef, N, domain, slice_vertical, slice_horizontal, realdata, path, cmin=cmin_im, cmax=cmax_im)
+UQplots.slices1Dvs3(x_mean, x_q[:,0], x_q[:,4], x_truef, N, domain, slice_vertical, slice_horizontal, realdata, path, cmin=cmin_im, cmax=cmax_im)
 UQplots.slices1D_postreals(post_realiz, post_idx, x_mean, x_truef, N, domain, slice_vertical, slice_horizontal, realdata, path, cmin=cmin_im, cmax=cmax_im)
 
 UQplots.xchains(x_chains, x_chains_thin, chainno, tau_max, 'x_chains', path)
@@ -411,9 +413,8 @@ if realdata == False:
     UQplots.image2D(phantom.flatten(order='F'), int(np.sqrt(len(phantom.flatten()))), domain, 'Phantom', path, 'phantom', cmin=cmin_im, cmax=cmax_im)
     UQplots.image2D(x_mean-x_truef, N, domain, 'Error', path, 'imerror', cmin=None, cmax=None)
     UQplots.error_chain(x_e, x_e_thin, path)
-    UQplots.sino(b_data, p, q, path, 'sino_noisy', 'Sinogram with {} % noise'.format(rnl*100), cmin = None, cmax = None)
-else:
-    UQplots.sino(b_data, p, q, path, 'sino_noisy', 'Recorded Sinogram', cmin = None, cmax = None)
+
+UQplots.sino2(b_data, p, q, path, 'sino_noisy', cmin = None, cmax = None)
 
 UQplots.imagemovie(x_s[:,4::], domain, N, n_s, 1, path, "samples_movie", colmap = 'gray', cmin = cmin_im, cmax = cmax_im)
     

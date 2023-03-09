@@ -52,7 +52,7 @@ likelihood = 'IIDGauss'          # type of lieklihood 'IIDGauss', 'Nolike'
 prior = 'StructuralGaussianGMRF'     # Prior distribution, choose 'Noprior', 'GMRF', 'StructuralGaussianGMRF',
 
 # CGLS params
-x_tol, n_cgls, ncgls_init = 1e-4, 100, 5    # for CGLS sampling
+x_tol, n_cgls, ncgls_init = 1e-4, 100, 7    # for CGLS sampling
 
 steel = 2e-2*7.9
 air = 0
