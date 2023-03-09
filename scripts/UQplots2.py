@@ -13,7 +13,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 import matplotlib.gridspec as gridspec
-from matplotlib import colors
+from matplotlib import colors, patches
 import scipy.stats as sps
 import random
 import matplotlib.animation as animation
@@ -387,6 +387,117 @@ def slices1Dvs2(x_mean, xql, xqu, x_true, N, domain, slice_vertical, slice_horiz
     plt.show()
     plt.savefig(path +'recon_1Dslice_vs2.png')
     plt.savefig(path + 'recon_1Dslice_vs2.eps', format='eps')
+
+# Spring 2023 version
+def slices1Dvs3(x_mean, xql, xqu, x_true, N, domain, slice_vertical, slice_horizontal, realdata, path, cmin=None, cmax=None, chainno = None):
+    
+    if chainno is not None:
+        # compute pixel positions
+        tmp = np.zeros(N**2)
+        tmp[chainno[0]] = chainno[0]
+        tmp[chainno[1]] = chainno[1]
+        tmp = tmp.reshape(N,N)
+        pixel0 = np.where(tmp == chainno[0])
+        pixel0_x = pixel0[0]/N*domain-domain/2
+        pixel0_y = pixel0[1]/N*domain-domain/2
+        pixel1 = np.where(tmp == chainno[1])
+        pixel1_x = pixel1[0]/N*domain-domain/2
+        pixel1_y = pixel1[1]/N*domain-domain/2
+
+    fig = plt.figure(figsize=(14,3.3))
+    gs = gridspec.GridSpec(2, 3)
+    ax0 = plt.subplot(gs[:, 0])
+    ax1 = plt.subplot(gs[:, 1])
+    ax2 = plt.subplot(gs[0, 2])
+    ax3 = plt.subplot(gs[1, 2])
+    fig.subplots_adjust(wspace=0.3)
+    fig.subplots_adjust(hspace=.7)
+
+    cs = ax0.imshow(x_mean.reshape(N,N), extent=[-domain/2, domain/2, -domain/2, domain/2], aspect='equal', cmap=colmap, vmin = cmin, vmax = cmax)
+    cax = fig.add_axes([ax0.get_position().x1+0.01,ax0.get_position().y0,0.02,ax0.get_position().height])
+    cbar = plt.colorbar(cs, cax=cax) 
+    ax0.axvline(x=slice_vertical,color='red')
+    ax0.axhline(y=slice_horizontal,color='red')
+    if chainno is not None:
+        ax0.plot(pixel0_x, pixel0_y, 'go')
+        ax0.plot(pixel1_x, pixel1_y, 'go')
+    ax0.set_title('Mean of posterior')
+    ax0.set_xticks(np.linspace(-20, 20, 5, endpoint=True)) 
+    ax0.set_yticks(np.linspace(-20, 20, 5, endpoint=True)) 
+    ax0.tick_params(axis='x', rotation=30)
+    ax0.annotate('1.',
+            xy=(0.09, 0.16), xycoords='axes fraction',
+            xytext=(-1, 1), textcoords='offset pixels',
+            horizontalalignment='right',
+            verticalalignment='bottom', color = 'r')
+    ax0.annotate('2.',
+            xy=(0.48, 0.91), xycoords='axes fraction',
+            xytext=(-1, 1), textcoords='offset pixels',
+            horizontalalignment='right',
+            verticalalignment='bottom', color = 'r')
+    ax0.text(2,-25, "3mm inclusions", color = "lime", bbox=dict(edgecolor = "lime", facecolor = 'none'))
+    ax0.add_patch(plt.Circle((-17,-10), 4, facecolor = 'none', edgecolor = 'lime'))
+    ax0.add_patch(plt.Circle((17,10), 4, facecolor = 'none', edgecolor = 'lime'))
+    ax0.arrow(12,-21,4,26, head_width = 2, head_length = 2, length_includes_head = True, color = 'lime')
+    ax0.arrow(12,-21,-25,8, head_width = 2, head_length = 2, length_includes_head = True, color = 'lime')
+
+    cs = ax1.imshow((xqu-xql).reshape(N,N), extent=[-domain/2, domain/2, -domain/2, domain/2], aspect='equal', cmap=colmap)
+    cax = fig.add_axes([ax1.get_position().x1+0.01,ax1.get_position().y0,0.02,ax1.get_position().height])
+    cbar = plt.colorbar(cs, cax=cax) 
+    ax1.axvline(x=slice_vertical,color='red')
+    ax1.axhline(y=slice_horizontal,color='red')
+    if chainno is not None:
+        ax1.plot(pixel0_x, pixel0_y, 'go')
+        ax1.plot(pixel1_x, pixel1_y, 'go')
+    ax1.set_title("Width of 95% credible \ninterval of posterior")
+    ax1.set_xticks(np.linspace(-20, 20, 5, endpoint=True)) 
+    ax1.set_yticks(np.linspace(-20, 20, 5, endpoint=True)) 
+    ax1.tick_params(axis='x', rotation=30)
+    ax1.annotate('1.',
+            xy=(0.09, 0.16), xycoords='axes fraction',
+            xytext=(-1, 1), textcoords='offset pixels',
+            horizontalalignment='right',
+            verticalalignment='bottom', color = 'r')
+    ax1.annotate('2.',
+            xy=(0.48, 0.91), xycoords='axes fraction',
+            xytext=(-1, 1), textcoords='offset pixels',
+            horizontalalignment='right',
+            verticalalignment='bottom', color = 'r')
+
+
+    slice_horizontal_idx = int(N/2-slice_horizontal/domain*N)
+    y = x_mean.reshape(N,N)[slice_horizontal_idx,:]
+    cilow = xql.reshape(N,N)[slice_horizontal_idx,:]
+    cihigh = xqu.reshape(N,N)[slice_horizontal_idx,:]
+    ax2.fill_between(np.linspace(-domain/2, domain/2, N), cilow, cihigh, color='tab:blue', alpha=.1, label = '95 % CI')
+    if x_true is not None:
+        y_true = x_true.reshape(N,N)[slice_horizontal_idx,:]
+        ax2.plot(np.linspace(-domain/2, domain/2, N),y_true, color = 'tab:orange', label = 'true')
+    ax2.plot(np.linspace(-domain/2, domain/2, N),y, color = 'tab:blue', label = 'mean')
+    ax2.set_aspect(100)
+    ax2.set_ylim((-0.05,0.2))
+    ax2.set_title('1. Horizontal')
+    ax2.set_xticks(np.linspace(-20, 20, 5, endpoint=True)) 
+    ax2.tick_params(axis='x', rotation=30)
+    
+    slice_vertical_idx = int(N/2-slice_vertical/domain*N)
+    y = x_mean.reshape(N,N)[:,slice_vertical_idx]
+    cilow = xql.reshape(N,N)[:,slice_vertical_idx]
+    cihigh = xqu.reshape(N,N)[:,slice_vertical_idx]
+    ax3.fill_between(np.linspace(-domain/2, domain/2, N), cilow[::-1], cihigh[::-1], color='tab:blue', alpha=.1, label = '95 % CI')
+    if x_true is not None:
+        y_true = x_true.reshape(N,N)[:,slice_vertical_idx]
+        ax3.plot(np.linspace(-domain/2, domain/2, N),y_true[::-1], color = 'tab:orange', label = 'true')
+    ax3.plot(np.linspace(-domain/2, domain/2, N),y[::-1], color = 'tab:blue', label = 'mean')
+    ax3.set_ylim((-0.05,0.2))
+    ax3.set_aspect(100)
+    ax3.set_title('2. Vertical')
+    ax3.set_xticks(np.linspace(-20, 20, 5, endpoint=True)) 
+    ax3.tick_params(axis='x', rotation=30)
+
+    plt.show()
+    plt.savefig(path +'recon_1Dslice_vs3.png')
+    plt.savefig(path + 'recon_1Dslice_vs3.pdf', format='pdf')
 
 
 # =================================================================
