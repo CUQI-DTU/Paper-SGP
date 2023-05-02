@@ -184,7 +184,7 @@ def Data20180911(size):
     elif size == "overfull":
         p   = 510               # p: number of detector pixels
         q   = 720               # q: number of projection angles
-        maxAngle    = 364               # measurement max angle
+        maxAngle    = 360               # measurement max angle
 
     dlA         = 41.1*(p/det_full)              # full detector length
     dl          = dlA/p   # length of detector element

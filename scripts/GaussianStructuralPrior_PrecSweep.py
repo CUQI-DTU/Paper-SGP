@@ -36,33 +36,36 @@ def copy_func(f):
 # Parameters
 #=========================================================================
 # Data 
-realdata = True
+realdata = False
 phantomname = 'DeepSeaOilPipe4'   # choose phantom
 data_std = 0.05
 rnl = 0.02                      # relative noise level
 ag = "sparseangles20percent"                    # Problem geometry
 if realdata == True:
     data_std = 0.05
-    datapath = '../data/Data_20180911/'
+    datapath = '../../FORCE/data/Data_20180911/'
 else: 
-    datapath = '../data/SyntheticData/{}_rnl{:d}_geom{}/'.format(phantomname, int(rnl*100), ag)
+    datapath = '../../FORCE/data/SyntheticData/{}_rnl{:d}_geom{}/'.format(phantomname, int(rnl*100), ag)
 
 # UQ problem
 likelihood = 'IIDGauss'          # type of lieklihood 'IIDGauss', 'Nolike'
 prior = 'StructuralGaussianGMRF'     # Prior distribution, choose 'Noprior', 'GMRF', 'StructuralGaussianGMRF',
 
 # CGLS params
-x_tol, n_cgls, ncgls_init = 1e-4, 100, 5    # for CGLS sampling
+x_tol, n_cgls, ncgls_init = 1e-4, 100, 7    # for CGLS sampling
 
 steel = 2e-2*7.9
 air = 0
 PUrubber = 5.1e-2*0.94
 PEfoam = 5.1e-2*0.15
 concrete = 4.56e-2*2.3
+# Prior means
 mu_vals = np.array([steel, PEfoam, PUrubber, concrete, air])
-#prec_vals = np.array([0, 0, 0, 0, 1e3])
-#prec_vals = np.array([0, 0, 0, 0, 0])
-prec_vals = np.array([1000, 1000, 1000, 500, 1000])
+# Prior precision values for IID part of prior. Comment lines to choose SGP configuration.
+prec_vals = np.array([1000, 1000, 1000, 500, 1000]) # SGP-F
+#prec_vals = np.array([0, 0, 0, 0, 1000]) # SGP-BG
+#prec_vals = np.array([0, 0, 0, 0, 0]) # GMRF
+# Prior GMRF precision sweep
 prec_MRF_vec = np.logspace(2, 5, 20, endpoint=True) # vector
 
 if realdata == False:
@@ -131,7 +134,7 @@ q = len(theta)
 
 # Reconstruction geometry
 domain      = 55        # physical size of object
-N           = 512       # reconstruction of NxN pixels
+N           = 500       # reconstruction of NxN pixels
 
 #%%=======================================================================
 # Create/load sinogram
@@ -198,11 +201,11 @@ Rmu_prior = np.hstack([np.zeros(np.shape(D1)[0]), np.zeros(np.shape(D2)[0]), Wsq
 # init sampling
 if likelihood == "Nolike":
     x0 = np.zeros(N**2)
-elif realdata==True:
-    x0, _ = CGLS_reg_ML(np.zeros(N**2), b_data, lambd, ncgls_init, x_tol)
-else:
-    MLrecon = spio.loadmat(datapath+'ML.mat')
-    x0 = MLrecon['x_ML'][:, ncgls_init-1]
+#elif realdata==True:
+x0, _ = CGLS_reg_ML(np.zeros(N**2), b_data, lambd, ncgls_init, x_tol)
+# else:
+#     MLrecon = spio.loadmat(datapath+'ML.mat')
+#     x0 = MLrecon['x_ML'][:, ncgls_init-1]
 
 # MAP
 print('\n***MAP***\n')
@@ -256,6 +259,7 @@ cax = fig.add_axes([ax.get_position().x1+0.01,ax.get_position().y0,0.02,ax.get_p
 fig.colorbar(im, cax=cax) 
 plt.show()
 plt.savefig(path + 'mask.png')
+plt.savefig(path + 'mask.eps', format = 'eps')
 
 if realdata == False:
     f = plt.figure()
@@ -267,6 +271,7 @@ if realdata == False:
     plt.tight_layout()
     plt.show()
     plt.savefig(path + 'RMSEim.png')
+    plt.savefig(path + 'RMSEim.eps', format = 'eps')
 
     f = plt.figure()
     f.set_figwidth(5)
@@ -277,6 +282,8 @@ if realdata == False:
     plt.tight_layout()
     plt.show()
     plt.savefig(path + 'RMSEpipe.png')
+    plt.savefig(path + 'RMSEpipe.eps', format = 'eps')
+
 
     f = plt.figure()
     f.set_figwidth(5)
@@ -287,6 +294,8 @@ if realdata == False:
     plt.tight_layout()
     plt.show()
     plt.savefig(path + 'RMSEim_loglog.png')
+    plt.savefig(path + 'RMSEim_loglog.eps', format = 'eps')
+
 
     f = plt.figure()
     f.set_figwidth(5)
@@ -297,6 +306,8 @@ if realdata == False:
     plt.tight_layout()
     plt.show()
     plt.savefig(path + 'RMSEpipe_loglog.png')
+    plt.savefig(path + 'RMSEpipe_loglog.eps', format = 'eps')
+
 
 mdict={'x_MAP': x_MAP,
         'RMSE_pipe': RMSE_pipe,

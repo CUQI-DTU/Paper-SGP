@@ -18,7 +18,7 @@ p, theta, stc, ctd, shift, vectors, dl, dlA = geometrylib.Data20180911("sparsean
 q = np.shape(vectors)[0]
 # Reconstruction geometry
 domain      = 55              # physical size of object
-N = 512
+N = 500
 
 #%%=======================================================================
 # setup ASTRA
