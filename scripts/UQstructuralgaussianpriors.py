@@ -43,8 +43,10 @@ rnl = 0.02                     # relative noise level
 ag = "sparseangles20percent"                    # Problem geometry
 if realdata == True:
     data_std = 0.05
+    # path to real dataset. Can be downloaded from: "10.5281/zenodo.6817690".
     datapath = '../../FORCE/data/Data_20180911/'
 else: 
+    # path to synthetic dataset. Can be generated with script: "GenerateSynthData.py".
     datapath = '../../FORCE/data/SyntheticData/{}_rnl{:d}_geom{}/'.format(phantomname, int(rnl*100), ag)
 
 # UQ problem

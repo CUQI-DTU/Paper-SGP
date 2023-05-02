@@ -1,5 +1,5 @@
 #####################################################
-# Reconstruction for initializing SGP algorithm
+# CGLS reconstruction for initializing SGP algorithm and for comparison
 # =================================================================
 # Created by:
 # Silja W Christensen @ DTU
@@ -38,12 +38,14 @@ def copy_func(f):
 realdata = False
 phantomname = 'DeepSeaOilPipe4'   # choose phantom
 rnl = 0.02                      # relative noise level
-ag = "full"                    # Problem geometry
+ag = "sparseangles20percent"                    # Problem geometry
 if realdata == True:
     data_std = 0.05
-    datapath = '../data/Data_20180911/sinoN8.dat'
+    # path to real dataset. Can be downloaded from: "10.5281/zenodo.6817690".
+    datapath = '../../FORCE/data/Data_20180911/sinoN8.dat'
 else:
-    datapath = '../data/SyntheticData/{}_rnl{:d}_geom{}/'.format(phantomname, int(rnl*100), ag)
+    # path to synthetic dataset. Can be generated with script: "GenerateSynthData.py".
+    datapath = '../../FORCE/data/SyntheticData/{}_rnl{:d}_geom{}/'.format(phantomname, int(rnl*100), ag)
 
 # CGLS params
 x_tol, n_cgls_vec = 1e-6, np.linspace(1,20,20)   # for CGLS sampling
