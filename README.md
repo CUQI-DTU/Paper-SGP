@@ -12,8 +12,8 @@ UQstructuralgaussianpriors.py is the main script where the SGP prior is applied 
 Make sure that the acquisition geometry (ag) is consistent in the script you are running and projectionfunctions.py
 
 # Data
-Synthetic data is found in the data-folder. It can be generated using the script GenerateSynthData.py
-Real data is found ... something with zenodo?
+Synthetic data can be generated using the script GenerateSynthData.py
+Real data is found at 10.5281/zenodo.6817690.
 
 # Phantom
 For synthetic studies a pipe phantom is used. In the paper the DeepSeaOilPipe4 phantom from phantomlib.py is used.
