@@ -40,7 +40,7 @@ def copy_func(f):
 realdata = False
 phantomname = 'DeepSeaOilPipe4'   # choose phantom
 rnl = 0.02                     # relative noise level
-ag = "sparseangles20percent"                    # Problem geometry
+ag = "sparseangles20percent"   # Problem geometry. REMEMBER to also change this in "projection_functions.py".
 if realdata == True:
     data_std = 0.05
     # path to real dataset. Can be downloaded from: "10.5281/zenodo.6817690".

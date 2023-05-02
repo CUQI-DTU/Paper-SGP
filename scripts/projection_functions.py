@@ -13,7 +13,7 @@ import geometrylib
 # geometry parameters
 #=========================================================================
 # Aqusition geometry
-p, theta, stc, ctd, shift, vectors, dl, dlA = geometrylib.Data20180911("full")
+p, theta, stc, ctd, shift, vectors, dl, dlA = geometrylib.Data20180911("sparseangles20percent")
 
 q = np.shape(vectors)[0]
 # Reconstruction geometry
