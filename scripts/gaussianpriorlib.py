@@ -13,7 +13,7 @@ import scipy as sp
 from phantom_generator import pipe_phantom
 from phantomlib import drawPipe
 
-def StructuralGaussianGMRF(N, domain, maskradii, maskcenterinner, maskcenterouter, maskid, mu, precWGauss, bndcond):
+def StructuralGaussianGMRF(N, domain, maskradii, maskcenterinner, maskcenterouter, maskid, mu, precWGauss, bndcond, flat_order = "F", rot_k = 0):
     
     D1, D2 = DifferenceMatrix2D(N, bndcond)
 
@@ -26,7 +26,7 @@ def StructuralGaussianGMRF(N, domain, maskradii, maskcenterinner, maskcenteroute
     for i in range(len(maskid)):
         mask[drawPipe(N,domain,x,y,maskcenterinner[i,:],maskcenterouter[i,:],maskradii[i,0],maskradii[i,1])] = maskid[i] 
 
-    mask = mask.flatten(order='F')
+    mask = np.rot90(mask, k = rot_k).flatten(order=flat_order)
 
     x_prior = np.zeros(N**2)
     w = np.zeros(N**2)
