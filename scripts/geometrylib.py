@@ -165,6 +165,7 @@ def Data20180911(size):
     stc         = 60               # source to center distance
     ctd         = 50               # center to detector distance
     det_full    = 512
+    startAngle  = 0
     if size == "sparseangles":
         p   = 510               # p: number of detector pixels
         q   = 36                # q: number of projection angles
@@ -184,13 +185,34 @@ def Data20180911(size):
     elif size == "overfull":
         p   = 510               # p: number of detector pixels
         q   = 720               # q: number of projection angles
-        maxAngle    = 360               # measurement max angle
+        maxAngle    = 364               # measurement max angle
+    elif size == "limited90":
+        p   = 510               # p: number of detector pixels
+        q   = 90               # q: number of projection angles
+        startAngle = 15
+        maxAngle = 105
+    elif size == "limited120":
+        p   = 510               # p: number of detector pixels
+        q   = 120               # q: number of projection angles
+        maxAngle = 120
+    elif size == "limited180":
+        p   = 510               # p: number of detector pixels
+        q   = 180               # q: number of projection angles
+        startAngle = 15
+        maxAngle = 195
+    elif size == "limited180_2":
+        p   = 510               # p: number of detector pixels
+        q   = 180               # q: number of projection angles
+        startAngle = 180
+        maxAngle = 360
 
     dlA         = 41.1*(p/det_full)              # full detector length
     dl          = dlA/p   # length of detector element
 
     # view angles in rad
-    theta = np.linspace(0, maxAngle, q, endpoint=False) 
+    theta = np.linspace(startAngle, maxAngle, q, endpoint=False) 
+    #theta = theta[:-1]
+    #theta = theta[::int(728/q)]/180*np.pi
     theta = theta/180*np.pi
     
     s0 = np.array([shift, -stc])
