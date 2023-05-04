@@ -557,6 +557,108 @@ def DeepSeaOilPipe4(N,defects):
     return phantom, radii
 
 
+def DeepSeaOilPipe8(N,defects):
+
+    radii  = np.array([9,11,16,17.5,23])
+
+    domain = 55
+    c = np.round(np.array([N/2,N/2]))
+    axis1 = np.linspace(-c[0]-1,N-c[0],N, endpoint=True)
+    axis2 = np.linspace(-c[0]-1,N-c[0],N, endpoint=True)
+    x, y = np.meshgrid(axis1,axis2)
+    center = np.array([0,0])
+    phantom = 2e-2*7.9*drawPipe(N,domain,x,y,center,center,radii[0],radii[1])      # Steel (8.05g/cm^3)
+    phantom = phantom+5.1e-2*0.15*drawPipe(N,domain,x,y,center,center,radii[1],radii[2])      # PE-foam
+    phantom = phantom+5.1e-2*0.94*drawPipe(N,domain,x,y,center,center,radii[2],radii[3])     # PU rubber      0.93-0.97 g / cm^3 (Might be PVC, 1400 kg /m^3)
+    phantom = phantom+4.56e-2*2.3*drawPipe(N,domain,x,y,center,center,radii[3],radii[4])    # Concrete 2.3 g/cm^3
+
+    # radial cracks
+    if defects == True:
+
+        defectmask = []
+        vertices = []
+
+        # radial and angular cracks
+        no = 12
+        ang = np.array([-3*np.pi/9, -2*np.pi/9, -np.pi/9, 0, np.pi/2, np.pi/2, np.pi/2, np.pi/2, 2*np.pi/3, 5*np.pi/4-np.pi/9, 5*np.pi/4, 5*np.pi/4+np.pi/9])-60/180*np.pi
+        dist = np.array([20.25, 20.25, 20.25, 20.25, 20.25, 16.75, 13.5, 10, 20.25, 16.75+2, 16.75, 16.75-2])/domain*N
+        w = np.array([0.5, 0.4, 0.3, 0.2, 4, 4, 4, 4, 0.4, 0.4, 0.4, 0.4])/domain*N
+        l = np.array([4, 4, 4, 4, 0.4, 0.4, 0.4, 0.4, 4, 4, 4, 4])/domain*N
+        vals = np.zeros(no)
+        vals[8] = 2e-2*7.9
+        for i in range(no):
+            # coordinates in (x,y), -1 to 1 system
+            coordinates0 = np.array([
+                [c[0]+w[i]/2, c[1]+dist[i] + l[i]/2],
+                [c[0]-w[i]/2, c[1]+dist[i] + l[i]/2],
+                [c[0]-w[i]/2, c[1]+dist[i] - l[i]/2],
+                [c[0]+w[i]/2, c[1]+dist[i] - l[i]/2]
+            ])
+            R = np.array([
+                [np.cos(ang[i]), -np.sin(ang[i])],
+                [np.sin(ang[i]), np.cos(ang[i])]
+                ])
+            # Rotate around image center
+            coordinates = R @ (coordinates0.T - np.array([[c[0]],[c[1]]])) + np.array([[c[0]],[c[1]]])
+            coordinates = coordinates.T
+
+            # transform into (row, column) indicies
+            vertices.append(np.ceil(np.fliplr(coordinates)))
+            # create mask
+            tmpmask = create_polygon([N,N], vertices[i])
+            defectmask.append(np.array(tmpmask, dtype=bool))
+            phantom[defectmask[i]] = vals[i]
+
+        # Cross
+        c_cross_ang = -np.pi/2
+        c_cross_dist = 20.25/domain*N
+        c_cross = c_cross_dist*np.array([np.cos(c_cross_ang), np.sin(c_cross_ang)])+N/2
+        a = (2/np.sqrt(2))/domain*N
+        b = (0.2/np.sqrt(2))/domain*N
+        coordinates_cross1 = np.array([
+            [c_cross[0]-a+b, c_cross[1]-a],
+            [c_cross[0]+a, c_cross[1]+a-b],
+            [c_cross[0]+a-b, c_cross[1]+a],
+            [c_cross[0]-a, c_cross[1]-a+b]])
+        coordinates_cross2 = np.array([
+            [c_cross[0]+a-b, c_cross[1]-a],
+            [c_cross[0]+a, c_cross[1]-a+b],
+            [c_cross[0]-a+b, c_cross[1]+a],
+            [c_cross[0]-a, c_cross[1]+a-b]])
+        # transform into (row, column) indicies
+        vertices.append(np.ceil(np.flipud(coordinates_cross1)))
+        # create mask
+        tmpmask = create_polygon([N,N], vertices[12])
+        defectmask.append(np.array(tmpmask, dtype=bool))
+        phantom[defectmask[12]] = 0
+        # transform into (row, column) indicies
+        vertices.append(np.ceil(np.flipud(coordinates_cross2)))
+        # create mask
+        tmpmask = create_polygon([N,N], vertices[13])
+        defectmask.append(np.array(tmpmask, dtype=bool))
+        phantom[defectmask[13]] = 0
+
+        # Circles
+        ang_circ = np.array([3*np.pi/4+np.pi/9, 3*np.pi/4+np.pi/9, 3*np.pi/4, 3*np.pi/4, 3*np.pi/4-np.pi/9])-60/180*np.pi
+        dist_circ = 20.25/domain*N
+        siz = np.array([1, 0.3, 1, 0.3, 0.3])/domain*N
+        val = np.array([0, 2e-2*7.9, 0, 4.56e-2*2.3, 2e-2*7.9])
+
+        for i in range(len(ang_circ)):
+            tmpmask = ((x-np.cos(ang_circ[i])*dist_circ)**2 + (y-np.sin(ang_circ[i])*dist_circ)**2 <= siz[i]**2)
+            defectmask.append(np.array(tmpmask, dtype=bool))
+            phantom[defectmask[14+i]] = val[i]
+
+        center_dists = np.hstack([dist, c_cross_dist, dist_circ*np.ones(3)])
+        center_x = center_dists*np.hstack([np.sin(-ang), np.sin(np.array([c_cross_ang])), np.cos(ang_circ[np.array([0,2,4])])])+N/2
+        center_y = center_dists*np.hstack([np.cos(-ang), np.cos(np.array([c_cross_ang])), np.sin(ang_circ[np.array([0,2,4])])])+N/2
+        centers = np.vstack([center_x, center_y])
+        
+        return phantom, radii, defectmask, vertices, centers
+    else:
+        return phantom, radii
+
+
 def drawPipe(N, domain, x,y ,c1,c2, r1, r2):
     # N is number of pixels on one axis
     # domain is true size of one axis
