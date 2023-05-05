@@ -13,7 +13,7 @@ Make sure that the acquisition geometry (ag) is consistent in the script you are
 
 # Data
 Synthetic data can be generated using the script GenerateSynthData.py
-Real data is found at 10.5281/zenodo.6817690.
+Real data is found at https://doi.org/10.5281/zenodo.6817690.
 
 # Phantom
 For synthetic studies a pipe phantom is used. In the paper the DeepSeaOilPipe4 phantom from phantomlib.py is used.
